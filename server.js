@@ -159,20 +159,20 @@ async function AddInfoToCard1() {
   if (is_day) {
     firstCard.children[2].children[0].setAttribute(
       "src",
-      `/icons${weatherCodes[code].dayIcon}`,
+      `./icons${weatherCodes[code].dayIcon}`,
     );
     firstCard.children[3].children[1].children[0].setAttribute(
       "src",
-      `/icons${weatherCodes[code].dayIcon}`,
+      `./icons${weatherCodes[code].dayIcon}`,
     );
   } else {
     firstCard.children[2].children[0].setAttribute(
       "src",
-      `/icons${weatherCodes[code].nightIcon}`,
+      `./icons${weatherCodes[code].nightIcon}`,
     );
     firstCard.children[3].children[1].children[0].setAttribute(
       "src",
-      `/icons${weatherCodes[code].nightIcon}`,
+      `./icons${weatherCodes[code].nightIcon}`,
     );
     is_night = true;
   }
@@ -277,8 +277,8 @@ async function AddInfoToCard2() {
   for (let j = 0; j < 6; j++) {
     let src = "";
     if (is_night)
-      src = "/icons" + weatherCodes[weather_code_array[j]].nightIcon;
-    else src = "/icons" + weatherCodes[weather_code_array[j]].dayIcon;
+      src = "./icons" + weatherCodes[weather_code_array[j]].nightIcon;
+    else src = "./icons" + weatherCodes[weather_code_array[j]].dayIcon;
 
     hourlyForecastContainer.innerHTML += `
             <div
@@ -303,7 +303,7 @@ async function AddInfoToCard2() {
 
               <div class="mt-5 flex h-14 items-center justify-center flex-col">
                 <img
-                  src="/icons/wind.png"
+                  src="./icons/wind.png"
                   class="h-6 w-6 object-contain drop-shadow-md"
                 />
                 <p class="mt-1 text-xs text-slate-400 dark:text-slate-500">${Math.round(wind_speed_array[j])} km/h</p>
@@ -410,7 +410,7 @@ async function AddInfoToCard4() {
     dayjs(item).format("ddd<br>D MMM"),
   );
   const weatherImgArr = data.daily.weather_code.map(
-    (item) => "/icons" + weatherCodes[item].dayIcon,
+    (item) => "./icons" + weatherCodes[item].dayIcon,
   );
   const maxTempArr = data.daily.temperature_2m_max;
   const minTempArr = data.daily.temperature_2m_min;
@@ -472,7 +472,7 @@ async function AddInfoToCard4() {
   <!-- Rain -->
   <div class="flex w-10 sm:w-14 md:w-16 shrink-0 items-center justify-end gap-1 sm:gap-2 text-blue-500">
     <img
-      src="/icons/raindrop.png"
+      src="./icons/raindrop.png"
       class="h-3 w-3 sm:h-4 sm:w-4 md:h-5 md:w-5"
     />
 
