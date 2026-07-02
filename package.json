@@ -1,4 +1,8 @@
 {
+  "scripts": {
+    "build": "npx @tailwindcss/cli -i ./input.css -o ./output.css --minify",
+    "dev": "npx @tailwindcss/cli -i ./input.css -o ./output.css --watch"
+  },
   "dependencies": {
     "@tailwindcss/cli": "^4.3.2",
     "chart.js": "^4.5.1",
