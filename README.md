@@ -2,6 +2,8 @@
 
 A modern, responsive weather application built with **HTML**, **Tailwind CSS**, and **JavaScript**. It provides current weather conditions, hourly forecasts, detailed weather metrics, and a 7-day forecast with a clean, minimalist interface.
 
+---
+
 ## ✨ Features
 
 - 🔍 Search weather by city
@@ -16,9 +18,7 @@ A modern, responsive weather application built with **HTML**, **Tailwind CSS**, 
 - 🌅 Sunrise & Sunset times
 - ☀️ UV Index
 - 🌙 Light/Dark mode with persistent theme
-- 💾 Cached daily forecast to reduce unnecessary API requests
-- 📱 Fully responsive design for desktop and mobile
-- ⚡ Loading skeletons for a smooth user experience
+
 
 ---
 
