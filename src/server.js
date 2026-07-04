@@ -11,6 +11,36 @@ const searchSection = document.getElementById("search");
 const weatherSection = document.getElementsByTagName("section")[0];
 let is_night = false;
 
+const firstCard = weatherSection.children[0]; // Card 1: current weather
+const hourlyForecastContainer = document.getElementById("hourlyForecast"); // Card 2: hourly forecast
+const card3 = document.getElementById("card3"); // Card 3: wind/humidity/pressure/visibility
+const forecastCard = document.getElementById("forecastCard"); // Card 4: 7-day forecast
+
+const skeletonHTML = `<div class="mx-auto w-full max-w-sm rounded-md border border-blue-300 p-4">
+  <div class="flex animate-pulse space-x-4">
+    <div class="size-10 rounded-full bg-gray-200"></div>
+    <div class="flex-1 space-y-6 py-1">
+      <div class="h-2 rounded bg-gray-200"></div>
+      <div class="space-y-3">
+        <div class="grid grid-cols-3 gap-4">
+          <div class="col-span-2 h-2 rounded bg-gray-200"></div>
+          <div class="col-span-1 h-2 rounded bg-gray-200"></div>
+        </div>
+        <div class="h-2 rounded bg-gray-200"></div>
+      </div>
+    </div>
+  </div>
+</div>`;
+
+const originalCard1Html = firstCard.innerHTML;
+const originalCard3Html = card3.innerHTML;
+
+function showSkeletons() {
+  firstCard.innerHTML = skeletonHTML;
+  hourlyForecastContainer.innerHTML = skeletonHTML;
+  card3.innerHTML = skeletonHTML;
+  forecastCard.innerHTML = skeletonHTML;
+}
 
 input.addEventListener("input", async function searchCity() {
   const place = input.value.trim();
@@ -53,31 +83,39 @@ input.addEventListener("input", async function searchCity() {
         suggestions.innerHTML = "";
         suggestions.classList.add("hidden");
         addCordsToArray(city);
+        showSkeletons(); // show skeleton immediately in all four cards
         //saveToLocalMemory(coordinates);
         await Promise.all([
-      AddInfoToCard1(),
-      AddInfoToCard2(),
-      AddInfoToCard3(),
-      AddInfoToCard4(),
-    ]);
+          AddInfoToCard1(),
+          AddInfoToCard2(),
+          AddInfoToCard3(),
+          AddInfoToCard4(),
+        ]);
       });
     });
   }
 });
 
-getLocationBtn.addEventListener("click", async()=>{
+document.addEventListener("click", (e) => {
+  if (!suggestions.contains(e.target)) {
+    suggestions.classList.add("hidden");
+  }
+});
+
+getLocationBtn.addEventListener("click", async () => {
+  showSkeletons(); // show skeleton immediately, before waiting on coordinates
   input.value = "";
   coordinates = [];
   await getCoordinates(coordinates); // wait to get the coordinates
+  
   //await IPlocation();
   await Promise.all([
-      AddInfoToCard1(),
-      AddInfoToCard2(),
-      AddInfoToCard3(),
-      AddInfoToCard4(),
-    ]);
+    AddInfoToCard1(),
+    AddInfoToCard2(),
+    AddInfoToCard3(),
+    AddInfoToCard4(),
+  ]);
 });
-
 
 function addCordsToArray(arg) {
   coordinates = [];
@@ -86,32 +124,26 @@ function addCordsToArray(arg) {
   coordinates.push(input.value);
 }
 
-
 document.addEventListener("DOMContentLoaded", async () => {
-  
-    await getCoordinates(coordinates); // wait to get the coordinates
-    //input.value = coordinates[2];
-    
-    await Promise.all([
-      AddInfoToCard1(),
-      AddInfoToCard2(),
-      AddInfoToCard3(),
-      AddInfoToCard4(),
-    ]);
-  
+  showSkeletons(); // show skeleton immediately, before waiting on coordinates
+  await getCoordinates(coordinates); // wait to get the 
+
+  await Promise.all([
+    AddInfoToCard1(),
+    AddInfoToCard2(),
+    AddInfoToCard3(),
+    AddInfoToCard4(),
+  ]);
 });
 
 async function AddInfoToCard1() {
-  const firstCard = weatherSection.children[0]; // getting the first card
-  const firstCardHtml = loadingSkeleton(firstCard);
-
   const response = await fetch(
     `https://api.open-meteo.com/v1/forecast?latitude=${coordinates[0]}&longitude=${coordinates[1]}&daily=sunrise,sunset,uv_index_max,uv_index_clear_sky_max&current=temperature_2m,apparent_temperature,is_day,precipitation,rain,showers,snowfall,weather_code&timezone=auto&forecast_days=1&wind_speed_unit=ms`,
   );
   const data = await response.json();
 
   firstCard.innerHTML = "";
-  firstCard.innerHTML = firstCardHtml;
+  firstCard.innerHTML = originalCard1Html;
 
   const code = data.current.weather_code;
   const is_day = Boolean(data.current.is_day);
@@ -130,8 +162,8 @@ async function AddInfoToCard1() {
 
   const formattedDate = date.toLocaleDateString("en-US", options);
 
-  firstCard.children[0].children[1].textContent = coordinates[2]; // Changing the H2 in the first card
-  firstCard.children[1].textContent = `${formattedDate} • ${coordinates[3] != undefined ? coordinates[3] : localTime}`; //Adding the Date and time
+  firstCard.children[0].children[1].textContent = coordinates[2] == '' ? coordinates[3] : coordinates[2]; // Changing the H2 in the first card
+  firstCard.children[1].textContent = `${formattedDate} • ${coordinates[3] != undefined? coordinates[3] : localTime}`; //Adding the Date and time
   firstCard.children[2].children[1].textContent =
     weatherCodes[code].description; // Description of current weather
 
@@ -221,16 +253,11 @@ async function AirQuality(bottom_info) {
 }
 
 async function AddInfoToCard2() {
-  const hourlyForecastContainer = document.getElementById("hourlyForecast");
-  const hourlyForescatHtml = loadingSkeleton(hourlyForecastContainer);
-  
-
   const response = await fetch(
     `https://api.open-meteo.com/v1/forecast?latitude=${coordinates[0]}&longitude=${coordinates[1]}&hourly=wind_speed_10m,temperature_2m,weather_code&timezone=auto&forecast_days=2`,
   );
   const data = await response.json();
   hourlyForecastContainer.innerHTML = "";
-  //hourlyForecastContainer.innerHTML = hourlyForescatHtml;
 
   const time = new Date().toLocaleTimeString("en-US", {
     hour12: false,
@@ -246,10 +273,8 @@ async function AddInfoToCard2() {
     if (times[i].indexOf(hr) != -1) break;
   }
 
-
   const temperature_forcast_array = data.hourly.temperature_2m.slice(i, i + 6);
   makeHourlyChart(temperature_forcast_array);
-
 
   const weather_code_array = data.hourly.weather_code.slice(i, i + 6);
   const wind_speed_array = data.hourly.wind_speed_10m.slice(i, i + 6);
@@ -305,17 +330,15 @@ async function AddInfoToCard2() {
 }
 
 async function AddInfoToCard3() {
-  const card3 = document.getElementById("card3");
-  const card3Html = loadingSkeleton(card3);
   const now_time = dayjs().format("YYYY-MM-DDTHH:00");
-  
+
   const response = await fetch(
     `https://api.open-meteo.com/v1/forecast?latitude=${coordinates[0]}&longitude=${coordinates[1]}&hourly=visibility&current=wind_speed_10m,wind_direction_10m,pressure_msl,relative_humidity_2m&timezone=auto&forecast_days=1`,
   );
   const data = await response.json();
 
   card3.innerHTML = "";
-  card3.innerHTML = card3Html;
+  card3.innerHTML = originalCard3Html;
 
   const windSpeedCard = document.getElementById("windSpeedCard");
   const HumidityPerCard = document.getElementById("HumidityPerCard");
@@ -374,17 +397,10 @@ async function AddInfoToCard3() {
 }
 
 async function AddInfoToCard4() {
-  const forecastCard = document.getElementById("forecastCard");
-  const forecastCardHtml = loadingSkeleton(forecastCard);
-  
-
   const response = await fetch(
     `https://api.open-meteo.com/v1/forecast?latitude=${coordinates[0]}&longitude=${coordinates[1]}&daily=temperature_2m_max,temperature_2m_min,weather_code,precipitation_probability_max&timezone=auto`,
   );
   const data = await response.json();
-
-  forecastCard.innerHTML = "";
-  forecastCard.innerHTML = forecastCardHtml;
 
   const dayMonthArr = data.daily.time.map((item) =>
     dayjs(item).format("ddd<br>D MMM"),
@@ -465,24 +481,3 @@ async function AddInfoToCard4() {
     `;
   }
 }
-
-
-function loadingSkeleton(card2) {
-  const card2Html = card2.innerHTML;
-  card2.innerHTML = "";
-  card2.innerHTML = `<div class="w-full animate-pulse p-7">
-    <div class="h-8 w-40 rounded bg-slate-200"></div>
-
-    <div class="mt-8 h-6 w-28 rounded bg-slate-200"></div>
-
-    <div class="mt-8 h-24 w-full rounded bg-slate-200"></div>
-
-    <div class="mt-8 grid grid-cols-4 gap-4">
-        <div class="h-16 rounded bg-slate-200"></div>
-        <div class="h-16 rounded bg-slate-200"></div>
-        <div class="h-16 rounded bg-slate-200"></div>
-        <div class="h-16 rounded bg-slate-200"></div>
-    </div>
-</div>`
-  return card2Html;
-};

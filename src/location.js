@@ -41,7 +41,3 @@ async function getPlace(coordinates, input){
     coordinates.push(`${a}`);
     coordinates.push(`${d}`);
 }
-
-//const coordinates = [];
-//getCoordinates(coordinates).then(() => console.log(coordinates)); // This will log an empty array initially, but will be filled after the async operation completes
-//console.log(coordinates); // This will log an empty array initially, but will be filled after the async operation completes
