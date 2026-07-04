@@ -1,10 +1,11 @@
 import { weatherCodes } from "./weatherCode.js";
 import { makeHourlyChart } from "./makeGraph.js";
+import { getCoordinates } from "./location.js";
 dayjs.extend(window.dayjs_plugin_customParseFormat);
 
 const input = document.getElementById("input");
 const suggestions = document.getElementById("suggestions");
-let coordinates = JSON.parse(localStorage.getItem("location")) || []; // stores [latitude, longitude, place]
+let coordinates = []; // stores [latitude, longitude, place]
 const getLocationBtn = document.getElementById("getLocationBtn");
 const searchSection = document.getElementById("search");
 const weatherSection = document.getElementsByTagName("section")[0];
@@ -52,7 +53,7 @@ input.addEventListener("input", async function searchCity() {
         suggestions.innerHTML = "";
         suggestions.classList.add("hidden");
         addCordsToArray(city);
-        saveToLocalMemory(coordinates);
+        //saveToLocalMemory(coordinates);
         await Promise.all([
       AddInfoToCard1(),
       AddInfoToCard2(),
@@ -65,7 +66,10 @@ input.addEventListener("input", async function searchCity() {
 });
 
 getLocationBtn.addEventListener("click", async()=>{
-  await IPlocation();
+  input.value = "";
+  coordinates = [];
+  await getCoordinates(coordinates); // wait to get the coordinates
+  //await IPlocation();
   await Promise.all([
       AddInfoToCard1(),
       AddInfoToCard2(),
@@ -74,11 +78,6 @@ getLocationBtn.addEventListener("click", async()=>{
     ]);
 });
 
-function saveToLocalMemory(info) {
-  // Remove only the item with the key 'userToken'
-  localStorage.removeItem("location"); 
-  localStorage.setItem("location", JSON.stringify(info));
-}
 
 function addCordsToArray(arg) {
   coordinates = [];
@@ -87,20 +86,11 @@ function addCordsToArray(arg) {
   coordinates.push(input.value);
 }
 
-async function IPlocation() {
-  const response = await fetch("https://ipapi.co/json");
-  const data = await response.json();
-
-  if (!suggestions.classList.contains("hidden"))
-    suggestions.classList.add("hidden");
-  input.value = `${data.city}, ${data.country_name}`;
-  addCordsToArray(data);
-  saveToLocalMemory(coordinates);
-}
 
 document.addEventListener("DOMContentLoaded", async () => {
-  if (coordinates.length == 3) {
-    input.value = coordinates[2];
+  
+    await getCoordinates(coordinates); // wait to get the coordinates
+    //input.value = coordinates[2];
     
     await Promise.all([
       AddInfoToCard1(),
@@ -108,17 +98,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       AddInfoToCard3(),
       AddInfoToCard4(),
     ]);
-  } else { 
-    await IPlocation(); // wait to get the IP
-    input.value = coordinates[2];
-    
-    await Promise.all([
-      AddInfoToCard1(),
-      AddInfoToCard2(),
-      AddInfoToCard3(),
-      AddInfoToCard4(),
-    ]);
-  }
+  
 });
 
 async function AddInfoToCard1() {
@@ -151,7 +131,7 @@ async function AddInfoToCard1() {
   const formattedDate = date.toLocaleDateString("en-US", options);
 
   firstCard.children[0].children[1].textContent = coordinates[2]; // Changing the H2 in the first card
-  firstCard.children[1].textContent = `${formattedDate} • ${localTime}`; //Adding the Date and time
+  firstCard.children[1].textContent = `${formattedDate} • ${coordinates[3] != undefined ? coordinates[3] : localTime}`; //Adding the Date and time
   firstCard.children[2].children[1].textContent =
     weatherCodes[code].description; // Description of current weather
 
