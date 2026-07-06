@@ -84,7 +84,7 @@ input.addEventListener("input", async function searchCity() {
         suggestions.classList.add("hidden");
         addCordsToArray(city);
         showSkeletons(); // show skeleton immediately in all four cards
-        //saveToLocalMemory(coordinates);
+        
         await Promise.all([
           AddInfoToCard1(),
           AddInfoToCard2(),
@@ -308,7 +308,7 @@ async function AddInfoToCard2() {
 
               <div class="mt-5 flex h-14 items-center justify-center flex-col">
                 <img
-                  src="./icons/wind.png"
+                  src= ${localStorage.getItem("theme") === "dark" ? "./icons/wind_white.png" : "./icons/wind.png"}
                   class="h-6 w-6 object-contain drop-shadow-md"
                 />
                 <p class="mt-1 text-xs text-slate-400 dark:text-slate-500">${Math.round(wind_speed_array[j])} km/h</p>
