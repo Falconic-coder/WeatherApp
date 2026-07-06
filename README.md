@@ -31,8 +31,6 @@ A modern, responsive weather application built with **HTML**, **Tailwind CSS**, 
 - ipapi.co && browser geolocation 
 
 
-For example, using VS Code Live Server.
-
 ## 👨‍💻 Author
 
 GitHub: https://github.com/Falconic-coder/
